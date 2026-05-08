@@ -1,0 +1,36 @@
+{
+  "name": "anchorkit",
+  "version": "0.1.0",
+  "description": "Unified SDK for Stellar Anchors & SEP Standards",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/server.ts",
+    "test": "jest --runInBand",
+    "lint": "eslint src --ext .ts"
+  },
+  "keywords": ["stellar", "anchor", "sep6", "sep24", "sep31", "sdk"],
+  "license": "MIT",
+  "dependencies": {
+    "@stellar/stellar-sdk": "^12.3.0",
+    "axios": "^1.7.2",
+    "express": "^4.19.2",
+    "ioredis": "^5.4.1",
+    "toml": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.14.2",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "testMatch": ["**/tests/**/*.test.ts"]
+  }
+}
