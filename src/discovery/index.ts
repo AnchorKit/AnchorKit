@@ -36,6 +36,7 @@ export async function fetchAnchorInfo(
     sep6Url: toml['TRANSFER_SERVER'] as string | undefined,
     sep24Url: toml['TRANSFER_SERVER_SEP0024'] as string | undefined,
     sep31Url: toml['DIRECT_PAYMENT_SERVER'] as string | undefined,
+    sep38Url: toml['ANCHOR_QUOTE_SERVER'] as string | undefined,
     sep10Url: toml['WEB_AUTH_ENDPOINT'] as string | undefined,
     currencies,
   };

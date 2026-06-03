@@ -1,10 +1,15 @@
 export { AnchorKit } from './client';
 export * from './types';
+export * from './errors';
 export { fetchAnchorInfo, discoverAnchors } from './discovery';
 export { authenticate, getToken } from './sep10';
 export { sep6Deposit, sep6Withdraw, sep6Transaction, sep6Transactions } from './sep6';
 export { sep24Deposit, sep24Withdraw, sep24Transaction, sep24Transactions } from './sep24';
 export { sep31Send, sep31Transaction, sep31Info } from './sep31';
+export { sep38Info, sep38GetPrice, sep38PostQuote, sep38GetQuote } from './sep38';
+export type { Sep38Info, Sep38Asset, Sep38Price, Sep38Quote, Sep38PriceParams, Sep38QuoteParams } from './sep38';
+export { pollTransaction } from './poll';
+export type { PollOptions } from './poll';
 export { checkHealth, checkAllHealth, pickHealthyAnchor } from './health';
 export { Cache } from './cache';
 export { createServer } from './server';

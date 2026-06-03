@@ -1,10 +1,13 @@
 import * as StellarSdk from '@stellar/stellar-sdk';
 import { AnchorKitConfig, AnchorInfo, DepositParams, DepositResult, WithdrawParams, WithdrawResult, Sep31SendParams, Sep31SendResult, HealthStatus, Transaction } from '../types';
+import { UnsupportedSepError, NoHealthyAnchorError } from '../errors';
 import { discoverAnchors, fetchAnchorInfo } from '../discovery';
 import { getToken } from '../sep10';
 import { sep6Deposit, sep6Withdraw, sep6Transaction, sep6Transactions } from '../sep6';
 import { sep24Deposit, sep24Withdraw, sep24Transaction, sep24Transactions } from '../sep24';
 import { sep31Send, sep31Transaction } from '../sep31';
+import { sep38Info, sep38GetPrice, sep38PostQuote, sep38GetQuote, Sep38Info, Sep38PriceParams, Sep38QuoteParams, Sep38Price, Sep38Quote } from '../sep38';
+import { pollTransaction, PollOptions } from '../poll';
 import { checkAllHealth, pickHealthyAnchor } from '../health';
 import { Cache } from '../cache';
 
@@ -53,57 +56,79 @@ export class AnchorKit {
   // ── SEP-6 ──────────────────────────────────────────────────────────────────
 
   async sep6Deposit(anchor: AnchorInfo, params: DepositParams, token?: string): Promise<DepositResult> {
-    if (!anchor.sep6Url) throw new Error(`${anchor.homeDomain} does not support SEP-6`);
+    if (!anchor.sep6Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-6');
     return sep6Deposit(anchor.sep6Url, params, token);
   }
 
   async sep6Withdraw(anchor: AnchorInfo, params: WithdrawParams, token?: string): Promise<WithdrawResult> {
-    if (!anchor.sep6Url) throw new Error(`${anchor.homeDomain} does not support SEP-6`);
+    if (!anchor.sep6Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-6');
     return sep6Withdraw(anchor.sep6Url, params, token);
   }
 
   async sep6Transaction(anchor: AnchorInfo, id: string, token?: string): Promise<Transaction> {
-    if (!anchor.sep6Url) throw new Error(`${anchor.homeDomain} does not support SEP-6`);
+    if (!anchor.sep6Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-6');
     return sep6Transaction(anchor.sep6Url, id, token);
   }
 
   async sep6Transactions(anchor: AnchorInfo, assetCode: string, token?: string): Promise<Transaction[]> {
-    if (!anchor.sep6Url) throw new Error(`${anchor.homeDomain} does not support SEP-6`);
+    if (!anchor.sep6Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-6');
     return sep6Transactions(anchor.sep6Url, assetCode, token);
   }
 
   // ── SEP-24 ─────────────────────────────────────────────────────────────────
 
   async sep24Deposit(anchor: AnchorInfo, params: DepositParams, token: string): Promise<DepositResult> {
-    if (!anchor.sep24Url) throw new Error(`${anchor.homeDomain} does not support SEP-24`);
+    if (!anchor.sep24Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-24');
     return sep24Deposit(anchor.sep24Url, params, token);
   }
 
   async sep24Withdraw(anchor: AnchorInfo, params: WithdrawParams, token: string): Promise<WithdrawResult> {
-    if (!anchor.sep24Url) throw new Error(`${anchor.homeDomain} does not support SEP-24`);
+    if (!anchor.sep24Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-24');
     return sep24Withdraw(anchor.sep24Url, params, token);
   }
 
   async sep24Transaction(anchor: AnchorInfo, id: string, token: string): Promise<Transaction> {
-    if (!anchor.sep24Url) throw new Error(`${anchor.homeDomain} does not support SEP-24`);
+    if (!anchor.sep24Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-24');
     return sep24Transaction(anchor.sep24Url, id, token);
   }
 
   async sep24Transactions(anchor: AnchorInfo, assetCode: string, token: string): Promise<Transaction[]> {
-    if (!anchor.sep24Url) throw new Error(`${anchor.homeDomain} does not support SEP-24`);
+    if (!anchor.sep24Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-24');
     return sep24Transactions(anchor.sep24Url, assetCode, token);
   }
 
   // ── SEP-31 ─────────────────────────────────────────────────────────────────
 
   async sep31Send(anchor: AnchorInfo, params: Sep31SendParams, token: string): Promise<Sep31SendResult> {
-    if (!anchor.sep31Url) throw new Error(`${anchor.homeDomain} does not support SEP-31`);
+    if (!anchor.sep31Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-31');
     return sep31Send(anchor.sep31Url, params, token);
   }
 
   async sep31Transaction(anchor: AnchorInfo, id: string, token: string): Promise<Transaction> {
-    if (!anchor.sep31Url) throw new Error(`${anchor.homeDomain} does not support SEP-31`);
+    if (!anchor.sep31Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-31');
     return sep31Transaction(anchor.sep31Url, id, token);
+  }
+
+  // ── SEP-38 ─────────────────────────────────────────────────────────────────
+
+  async sep38Info(anchor: AnchorInfo, token?: string): Promise<Sep38Info> {
+    if (!anchor.sep38Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-38');
+    return sep38Info(anchor.sep38Url, token);
+  }
+
+  async sep38GetPrice(anchor: AnchorInfo, params: Sep38PriceParams, token?: string): Promise<Sep38Price> {
+    if (!anchor.sep38Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-38');
+    return sep38GetPrice(anchor.sep38Url, params, token);
+  }
+
+  async sep38PostQuote(anchor: AnchorInfo, params: Sep38QuoteParams, token: string): Promise<Sep38Quote> {
+    if (!anchor.sep38Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-38');
+    return sep38PostQuote(anchor.sep38Url, params, token);
+  }
+
+  async sep38GetQuote(anchor: AnchorInfo, id: string, token: string): Promise<Sep38Quote> {
+    if (!anchor.sep38Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-38');
+    return sep38GetQuote(anchor.sep38Url, id, token);
   }
 
   // ── Unified deposit (SEP-24 preferred, fallback to SEP-6) ──────────────────
@@ -111,13 +136,25 @@ export class AnchorKit {
   async deposit(anchor: AnchorInfo, params: DepositParams, token: string): Promise<DepositResult> {
     if (anchor.sep24Url) return this.sep24Deposit(anchor, params, token);
     if (anchor.sep6Url) return this.sep6Deposit(anchor, params, token);
-    throw new Error(`${anchor.homeDomain} supports neither SEP-6 nor SEP-24`);
+    throw new UnsupportedSepError(anchor.homeDomain, 'SEP-6 nor SEP-24');
   }
 
   async withdraw(anchor: AnchorInfo, params: WithdrawParams, token: string): Promise<WithdrawResult> {
     if (anchor.sep24Url) return this.sep24Withdraw(anchor, params, token);
     if (anchor.sep6Url) return this.sep6Withdraw(anchor, params, token);
-    throw new Error(`${anchor.homeDomain} supports neither SEP-6 nor SEP-24`);
+    throw new UnsupportedSepError(anchor.homeDomain, 'SEP-6 nor SEP-24');
+  }
+
+  // ── Transaction polling ────────────────────────────────────────────────────
+
+  async pollTransaction(
+    anchor: AnchorInfo,
+    id: string,
+    token: string,
+    sep: '6' | '24' | '31' = '24',
+    options?: PollOptions
+  ): Promise<Transaction> {
+    return pollTransaction(anchor, id, token, sep, options);
   }
 
   // ── Health ─────────────────────────────────────────────────────────────────
@@ -129,7 +166,10 @@ export class AnchorKit {
 
   async pickHealthyAnchor(): Promise<AnchorInfo> {
     const anchors = this.anchors.length ? this.anchors : await this.getAnchors();
-    return pickHealthyAnchor(anchors, this.config.timeoutMs);
+    const result = await pickHealthyAnchor(anchors, this.config.timeoutMs).catch(() => {
+      throw new NoHealthyAnchorError();
+    });
+    return result;
   }
 
   async disconnect(): Promise<void> {

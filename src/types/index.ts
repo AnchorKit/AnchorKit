@@ -7,6 +7,7 @@ export interface AnchorInfo {
   sep6Url?: string;
   sep24Url?: string;
   sep31Url?: string;
+  sep38Url?: string;
   sep10Url?: string;
   currencies: Currency[];
 }
