@@ -11,6 +11,7 @@ import { pollTransaction, PollOptions } from '../poll';
 import { checkAllHealth, pickHealthyAnchor } from '../health';
 import { Cache } from '../cache';
 
+/** Unified client for discovering anchors and calling supported Stellar SEP flows. */
 export class AnchorKit {
   private config: AnchorKitConfig;
   private cache: Cache;
@@ -55,21 +56,25 @@ export class AnchorKit {
 
   // ── SEP-6 ──────────────────────────────────────────────────────────────────
 
+  /** Starts a SEP-6 deposit flow for `anchor` using the provided deposit parameters. */
   async sep6Deposit(anchor: AnchorInfo, params: DepositParams, token?: string): Promise<DepositResult> {
     if (!anchor.sep6Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-6');
     return sep6Deposit(anchor.sep6Url, params, token);
   }
 
+  /** Starts a SEP-6 withdrawal flow for `anchor` using the provided withdrawal parameters. */
   async sep6Withdraw(anchor: AnchorInfo, params: WithdrawParams, token?: string): Promise<WithdrawResult> {
     if (!anchor.sep6Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-6');
     return sep6Withdraw(anchor.sep6Url, params, token);
   }
 
+  /** Fetches a single SEP-6 transaction by anchor transaction ID. */
   async sep6Transaction(anchor: AnchorInfo, id: string, token?: string): Promise<Transaction> {
     if (!anchor.sep6Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-6');
     return sep6Transaction(anchor.sep6Url, id, token);
   }
 
+  /** Lists SEP-6 transactions for an asset code on the selected anchor. */
   async sep6Transactions(anchor: AnchorInfo, assetCode: string, token?: string): Promise<Transaction[]> {
     if (!anchor.sep6Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-6');
     return sep6Transactions(anchor.sep6Url, assetCode, token);
@@ -77,21 +82,25 @@ export class AnchorKit {
 
   // ── SEP-24 ─────────────────────────────────────────────────────────────────
 
+  /** Starts an interactive SEP-24 deposit flow for `anchor`. */
   async sep24Deposit(anchor: AnchorInfo, params: DepositParams, token: string): Promise<DepositResult> {
     if (!anchor.sep24Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-24');
     return sep24Deposit(anchor.sep24Url, params, token);
   }
 
+  /** Starts an interactive SEP-24 withdrawal flow for `anchor`. */
   async sep24Withdraw(anchor: AnchorInfo, params: WithdrawParams, token: string): Promise<WithdrawResult> {
     if (!anchor.sep24Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-24');
     return sep24Withdraw(anchor.sep24Url, params, token);
   }
 
+  /** Fetches a single SEP-24 transaction by anchor transaction ID. */
   async sep24Transaction(anchor: AnchorInfo, id: string, token: string): Promise<Transaction> {
     if (!anchor.sep24Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-24');
     return sep24Transaction(anchor.sep24Url, id, token);
   }
 
+  /** Lists SEP-24 transactions for an asset code on the selected anchor. */
   async sep24Transactions(anchor: AnchorInfo, assetCode: string, token: string): Promise<Transaction[]> {
     if (!anchor.sep24Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-24');
     return sep24Transactions(anchor.sep24Url, assetCode, token);
@@ -99,11 +108,13 @@ export class AnchorKit {
 
   // ── SEP-31 ─────────────────────────────────────────────────────────────────
 
+  /** Starts a SEP-31 receiver-driven payment flow for `anchor`. */
   async sep31Send(anchor: AnchorInfo, params: Sep31SendParams, token: string): Promise<Sep31SendResult> {
     if (!anchor.sep31Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-31');
     return sep31Send(anchor.sep31Url, params, token);
   }
 
+  /** Fetches a single SEP-31 transaction by anchor transaction ID. */
   async sep31Transaction(anchor: AnchorInfo, id: string, token: string): Promise<Transaction> {
     if (!anchor.sep31Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-31');
     return sep31Transaction(anchor.sep31Url, id, token);
@@ -111,21 +122,25 @@ export class AnchorKit {
 
   // ── SEP-38 ─────────────────────────────────────────────────────────────────
 
+  /** Fetches SEP-38 exchange metadata for the selected anchor. */
   async sep38Info(anchor: AnchorInfo, token?: string): Promise<Sep38Info> {
     if (!anchor.sep38Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-38');
     return sep38Info(anchor.sep38Url, token);
   }
 
+  /** Requests an indicative SEP-38 exchange price from the selected anchor. */
   async sep38GetPrice(anchor: AnchorInfo, params: Sep38PriceParams, token?: string): Promise<Sep38Price> {
     if (!anchor.sep38Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-38');
     return sep38GetPrice(anchor.sep38Url, params, token);
   }
 
+  /** Creates a firm SEP-38 quote from the selected anchor. */
   async sep38PostQuote(anchor: AnchorInfo, params: Sep38QuoteParams, token: string): Promise<Sep38Quote> {
     if (!anchor.sep38Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-38');
     return sep38PostQuote(anchor.sep38Url, params, token);
   }
 
+  /** Fetches an existing SEP-38 quote by quote ID. */
   async sep38GetQuote(anchor: AnchorInfo, id: string, token: string): Promise<Sep38Quote> {
     if (!anchor.sep38Url) throw new UnsupportedSepError(anchor.homeDomain, 'SEP-38');
     return sep38GetQuote(anchor.sep38Url, id, token);
@@ -133,12 +148,14 @@ export class AnchorKit {
 
   // ── Unified deposit (SEP-24 preferred, fallback to SEP-6) ──────────────────
 
+  /** Starts a deposit flow, preferring SEP-24 and falling back to SEP-6. */
   async deposit(anchor: AnchorInfo, params: DepositParams, token: string): Promise<DepositResult> {
     if (anchor.sep24Url) return this.sep24Deposit(anchor, params, token);
     if (anchor.sep6Url) return this.sep6Deposit(anchor, params, token);
     throw new UnsupportedSepError(anchor.homeDomain, 'SEP-6 nor SEP-24');
   }
 
+  /** Starts a withdrawal flow, preferring SEP-24 and falling back to SEP-6. */
   async withdraw(anchor: AnchorInfo, params: WithdrawParams, token: string): Promise<WithdrawResult> {
     if (anchor.sep24Url) return this.sep24Withdraw(anchor, params, token);
     if (anchor.sep6Url) return this.sep6Withdraw(anchor, params, token);
@@ -147,6 +164,7 @@ export class AnchorKit {
 
   // ── Transaction polling ────────────────────────────────────────────────────
 
+  /** Polls a SEP transaction until it reaches a terminal status. */
   async pollTransaction(
     anchor: AnchorInfo,
     id: string,
@@ -159,11 +177,13 @@ export class AnchorKit {
 
   // ── Health ─────────────────────────────────────────────────────────────────
 
+  /** Checks health for all configured anchors, loading anchor metadata if needed. */
   async health(): Promise<HealthStatus[]> {
     const anchors = this.anchors.length ? this.anchors : await this.getAnchors();
     return checkAllHealth(anchors, this.config.timeoutMs);
   }
 
+  /** Returns the first healthy configured anchor or throws when none are available. */
   async pickHealthyAnchor(): Promise<AnchorInfo> {
     const anchors = this.anchors.length ? this.anchors : await this.getAnchors();
     const result = await pickHealthyAnchor(anchors, this.config.timeoutMs).catch(() => {
@@ -172,6 +192,7 @@ export class AnchorKit {
     return result;
   }
 
+  /** Closes the underlying cache connection used by the client. */
   async disconnect(): Promise<void> {
     await this.cache.disconnect();
   }
