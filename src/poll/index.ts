@@ -20,10 +20,7 @@ export interface PollOptions {
   onStatusChange?: (status: TransactionStatus, tx: Transaction) => void;
 }
 
-/**
- * Polls a transaction until it reaches a terminal state (completed, error, refunded, etc.)
- * or the timeout is exceeded.
- */
+/** Polls a SEP transaction until it reaches a terminal state or times out. */
 export async function pollTransaction(
   anchor: AnchorInfo,
   id: string,

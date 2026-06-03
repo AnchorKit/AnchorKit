@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { AnchorInfo, HealthStatus } from '../types';
 
+/** Checks whether an anchor service responds to its SEP info endpoint. */
 export async function checkHealth(anchor: AnchorInfo, timeoutMs = 5000): Promise<HealthStatus> {
   const start = Date.now();
   const url = anchor.sep24Url ?? anchor.sep6Url ?? anchor.sep31Url;
@@ -33,6 +34,7 @@ export async function checkHealth(anchor: AnchorInfo, timeoutMs = 5000): Promise
   }
 }
 
+/** Checks health for every anchor in parallel. */
 export async function checkAllHealth(
   anchors: AnchorInfo[],
   timeoutMs = 5000

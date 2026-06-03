@@ -6,10 +6,7 @@ export interface Sep10Token {
   expiresAt: number; // unix ms
 }
 
-/**
- * Performs SEP-10 Web Authentication against an anchor's auth endpoint.
- * Returns a JWT token for use in subsequent SEP-6/24/31 requests.
- */
+/** Performs SEP-10 Web Authentication and returns a cached JWT payload. */
 export async function authenticate(
   sep10Url: string,
   account: string,
@@ -46,6 +43,7 @@ export async function authenticate(
 /** Simple in-memory token cache keyed by `${sep10Url}:${account}` */
 const tokenCache = new Map<string, Sep10Token>();
 
+/** Returns a SEP-10 JWT for `account`, reusing a cached token if still valid. */
 export async function getToken(
   sep10Url: string,
   account: string,
